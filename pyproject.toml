@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-livechart"
+version = "1.0.0"
+authors = [
+  { name="YanBang Tang", email="tangyanbang23@mails.ucas.ac.cn" },
+]
+description = "A Python client for the IAEA Livechart of Nuclides Data Download API."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "requests",
+    "pandas",
+    "scikit-learn",
+    "numpy",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/py-livechart"
