@@ -19,7 +19,7 @@ As this package is not yet on PyPI, you can use it directly from the source code
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/py-livechart.git
+    git clone https://github.com/ybtang-prog/py-livechart.git
     cd py-livechart
     ```
 

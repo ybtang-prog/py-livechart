@@ -3,7 +3,7 @@
 import requests
 import pandas as pd
 from io import StringIO
-# This is an explicit relative import, which is correct.
+
 from .exceptions import (
     LiveChartAPIError, NoDataFoundError, InvalidParameterError,
     MissingParameterError, UnknownAPIError, HTTPError

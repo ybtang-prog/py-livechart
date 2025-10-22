@@ -27,4 +27,4 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/py-livechart"
+Homepage = "https://github.com/ybtang-prog/py-livechart.git"
