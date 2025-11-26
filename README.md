@@ -15,8 +15,7 @@
 5. [Request limits and performance](#request-limits-and-performance)
 6. [Examples and case studies](#examples-and-case-studies)
 7. [Machine learning helper](#machine-learning-helper)
-8. [PyPI/CI workflow](#pypici-workflow)
-9. [License](#license)
+8. [License](#license)
 
 ## Installation
 
