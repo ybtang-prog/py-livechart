@@ -124,16 +124,6 @@ prediction = ml.predict_half_life_seconds(model, features, ca48)
 print(f"T1/2(Ca-48) ≈ {prediction:.3e} s")
 ```
 
-## PyPI/CI workflow
-
-- `.github/workflows/publish.yml` runs linting and `pytest` on pushes and pull requests. When a tag matching `v*` is pushed, it builds wheels + source distributions and uploads them with `PYPI_API_TOKEN`.
-- Manual release commands:
-
-```bash
-python -m build
-twine upload dist/*
-```
-
 ## License
 
 MIT. See [LICENSE](LICENSE) for details.
