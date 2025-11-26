@@ -1,30 +1,49 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "py-livechart"
-version = "1.0.0"
+version = "1.2.0"
 authors = [
   { name="YanBang Tang", email="tangyanbang23@mails.ucas.ac.cn" },
 ]
-description = "A Python client for the IAEA Livechart of Nuclides Data Download API."
+description = "A resilient Python client for the IAEA LiveChart of Nuclides API."
 readme = "README.md"
 license = { file="LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
+keywords = ["nuclear-data", "iaea", "livechart", "nuclides", "physics", "pandas"]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 dependencies = [
-    "requests",
-    "pandas",
-    "scikit-learn",
-    "numpy",
+    "requests>=2.31",
+    "pandas>=2.0",
+    "numpy>=1.23",
+    "scikit-learn>=1.2",
 ]
 
+[project.optional-dependencies]
+plot = ["plotly>=5.12", "kaleido>=0.2"]
+ml = ["scikit-learn>=1.2", "pandas>=2.0", "numpy>=1.23"]
+dev = ["pytest>=8.0", "requests-mock>=1.11", "build>=1.2", "twine>=5.0"]
+
 [project.urls]
-Homepage = "https://github.com/ybtang-prog/py-livechart.git"
+Homepage = "https://github.com/ybtang-prog/py-livechart"
+Repository = "https://github.com/ybtang-prog/py-livechart"
+Issues = "https://github.com/ybtang-prog/py-livechart/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
