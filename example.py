@@ -5,13 +5,6 @@ import numpy as np
 import sys
 from pathlib import Path
 
-# --- Local Development Import ---
-# This ensures that the 'src' directory is on the Python path,
-# allowing us to import 'py_livechart' as if it were installed.
-# This script MUST be run from the project root directory.
-# (e.g., C:\...\py-livechart> python example.py)
-sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
-
 from py_livechart import LiveChartClient, NoDataFoundError, ml
 
 DATA_DIR = Path("data")
