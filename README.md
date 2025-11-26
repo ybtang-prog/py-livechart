@@ -96,7 +96,7 @@ Each public method has parameter-oriented docstrings, and all custom exceptions 
 
 1. **Thread-safe batch fetch** – uses `fetch_ground_states_many` to download multiple nuclides in parallel and reports individual failures.
 2. **Ground-state query** – prints the full Co‑60 table and demonstrates the `return_type="records"` abstraction.
-3. **Fission yield analysis** – generates `output/u235_fission_yield.pdf` with Plotly, and compares IAEA yields against the `data/jeff_fission_yield_sample.csv` excerpt.
+3. **Fission yield analysis** – generates `output/u235_fission_yield.pdf` with Plotly, and compares IAEA yields against the `data/jeff33_u235_thermal_mass_yield.csv` excerpt.
 4. **Machine learning template** – calls `ml.train_half_life_model` and `ml.predict_half_life_seconds` to showcase a reproducible data-mining workflow.
 
 Expanded commentary, reproducibility notes, and links to figures referenced in the manuscript are compiled in `docs/case_studies.md`.
