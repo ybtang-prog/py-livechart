@@ -14,10 +14,9 @@ This supplemental document expands on the examples referenced in the SoftwareX m
 - **Script**: `python example.py` (Example 3)
 - **Steps**:
   1. `get_fission_yields("cumulative_fy","235u")` provides the IAEA data.
-  2. `data/jeff_fission_yield_sample.csv` supplies a JEFF-3.3 excerpt.
-  3. `compare_with_reference_library` aligns on `a_daughter` and prints the top five percentage deviations.
-  4. A Plotly bar chart is exported to `output/u235_fission_yield.pdf` with logarithmic Y axis for readability.
-- **Purpose**: responds directly to Reviewer #4 by demonstrating cross-library validation and by producing a camera-ready figure cited in the paper.
+  2. `data/jeff33_u235_thermal_mass_yield.csv` supplies a JEFF-3.3 excerpt.
+  3. A Plotly bar chart is exported to `output/u235_fission_yield.pdf` with logarithmic Y axis for readability.
+- **Purpose**: responds directly to Reviewer #4 by demonstrating cross-library validation.
 
 ## 3. Machine learning template (half-life regression)
 
@@ -38,12 +37,4 @@ This supplemental document expands on the examples referenced in the SoftwareX m
 | `get_ground_states("all")` | ~3400 rows | 95 | Rate limit pinned to 1 req/s |
 | `get_fission_yields("cumulative_fy","235u")` | 876 rows | 0.78 | Includes Plotly export |
 
-> Environment: Shanghai 100 Mbps campus network, 230 ms round-trip latency. These figures match the discussion in Section 3 of the manuscript.
-
-## 5. Common issues and resolutions
-
-- **NaN in ML workflow**: the latest `ml.py` uses median imputation and explicit numeric coercion. If scikit-learn still raises a NaN error, verify that `scikit-learn>=1.2` is installed.
-- **API timeouts**: adjust `LiveChartClient(timeout=30, max_retries=5)` in the constructor or provide a custom session factory with a proxy if running behind a firewall.
-- **Parallel downloads**: prefer `fetch_ground_states_many` over ad-hoc threading; it respects local throttling and propagates individual failures without stopping the whole batch.
-- **Ground-state fixtures**: `data/ground_states_sample.csv` is produced via `python scripts/cache_ground_states.py`, which downloads the complete ground-state table (`nuclides=all`) from the IAEA API using the recommended User-Agent header. Regenerate the snapshot before rerunning the ML unit test if the IAEA releases new evaluations.
 
