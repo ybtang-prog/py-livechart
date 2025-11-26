@@ -5,10 +5,12 @@ import numpy as np
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
 from py_livechart import LiveChartClient, NoDataFoundError, ml
 
 DATA_DIR = Path("data")
-REFERENCE_FY = DATA_DIR / "jeff_fission_yield_sample.csv"
+JEFF_U235_FY = DATA_DIR / "jeff33_u235_thermal_mass_yield.csv"
 
 # --- Helper Functions ---
 
@@ -22,35 +24,32 @@ def print_header(title: str):
 
 def save_plot_as_pdf(fig, filename: str):
     """Saves a Plotly figure as a PDF, checking for the 'kaleido' dependency."""
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+    file_path = output_dir / filename
+    
+    # Try to save as PDF
     try:
         import kaleido  # noqa: F401
-
-        output_dir = Path("output")
-        output_dir.mkdir(exist_ok=True)
-        file_path = output_dir / filename
         print(f"\nGenerating plot '{file_path}'...")
         fig.write_image(file_path, format="pdf")
-        print(f"Plot saved successfully. You can find it in the '{output_dir.name}/' directory.")
+        print(f"Plot saved successfully as PDF. You can find it in the '{output_dir.name}/' directory.")
     except ImportError:
         print("\nSkipping PDF plot generation: 'kaleido' package not found.")
         print("To save plots as PDF for your paper, please install it with: pip install kaleido")
+        # Save as HTML instead
+        html_path = file_path.with_suffix(".html")
+        fig.write_html(str(html_path))
+        print(f"Plot saved as HTML instead: {html_path}")
     except Exception as e:
-        print(f"\nAn error occurred while saving the plot: {e}")
-
-
-def compare_with_reference_library(u235_df: pd.DataFrame):
-    """Compare IAEA cumulative FYs with JEFF sample data to illustrate workflows."""
-    if not REFERENCE_FY.exists():
-        print("Reference JEFF dataset missing; skipping comparison example.")
-        return
-    ref_df = pd.read_csv(REFERENCE_FY)
-    ref_df.rename(columns={"mass_number": "a_daughter", "cumulative_fy": "jeff_fy"}, inplace=True)
-    merged = u235_df.merge(ref_df, how="inner", on="a_daughter")
-    merged["iaea_fy"] = pd.to_numeric(merged["cumulative_thermal_fy"], errors="coerce")
-    merged["delta_pct"] = ((merged["iaea_fy"] - merged["jeff_fy"]) / merged["jeff_fy"]) * 100
-    merged.dropna(subset=["iaea_fy", "jeff_fy"], inplace=True)
-    print("\nJEFF vs IAEA LiveChart (subset provided in data/jeff_fission_yield_sample.csv)")
-    print(merged[["a_daughter", "iaea_fy", "jeff_fy", "delta_pct"]].head())
+        print(f"\nAn error occurred while saving the plot as PDF: {e}")
+        # Save as HTML as fallback
+        html_path = file_path.with_suffix(".html")
+        try:
+            fig.write_html(str(html_path))
+            print(f"Plot saved as HTML instead: {html_path}")
+        except Exception as e2:
+            print(f"Failed to save as HTML: {e2}")
 
 
 def demonstrate_concurrent_ground_state_fetch(client: LiveChartClient):
@@ -97,26 +96,79 @@ def main():
         print("Top 5 most abundant fission product mass numbers for U-235 (thermal):")
         print(mass_yield.sort_values(by="yield", ascending=False).head())
         try:
-            import plotly.express as px
+            import plotly.graph_objects as go
 
-            fig = px.bar(
-                mass_yield,
-                x="mass_number",
-                y="yield",
-                log_y=True,
-                title="Cumulative Fission Yield vs. Mass Number for U-235 (Thermal)",
-                labels={"mass_number": "Mass Number (A)", "yield": "Cumulative Yield"},
+            # Determine x-axis range based on IAEA data
+            x_min = mass_yield["mass_number"].min()
+            x_max = mass_yield["mass_number"].max()
+            
+            # Create figure
+            fig = go.Figure()
+            
+            # Add IAEA data as bar chart
+            fig.add_trace(
+                go.Bar(
+                    x=mass_yield["mass_number"],
+                    y=mass_yield["yield"],
+                    name="IAEA LiveChart",
+                    marker=dict(color="blue", opacity=0.7),
+                    hovertemplate="Mass: %{x}<br>IAEA Yield: %{y:.4e}<extra></extra>"
+                )
             )
+            
+            # Add JEFF-3.3 data as bar chart if available
+            if JEFF_U235_FY.exists():
+                try:
+                    jeff_df = pd.read_csv(JEFF_U235_FY)
+                    jeff_df["yield"] = pd.to_numeric(jeff_df["yield"], errors="coerce")
+                    jeff_df.dropna(inplace=True)
+                    jeff_df = jeff_df.sort_values("mass_number")
+                    
+                    # Filter JEFF data to IAEA x-axis range (optional, for better visualization)
+                    # But keep all data for completeness
+                    jeff_in_range = jeff_df[
+                        (jeff_df["mass_number"] >= x_min) & 
+                        (jeff_df["mass_number"] <= x_max)
+                    ]
+                    
+                    # Add JEFF-3.3 data as bar chart
+                    fig.add_trace(
+                        go.Bar(
+                            x=jeff_df["mass_number"],
+                            y=jeff_df["yield"],
+                            name="JEFF-3.3",
+                            marker=dict(color="red", opacity=0.7),
+                            hovertemplate="Mass: %{x}<br>JEFF-3.3 Yield: %{y:.4e}<extra></extra>"
+                        )
+                    )
+                    print(f"\nAdded JEFF-3.3 data: {len(jeff_df)} mass numbers")
+                    print(f"  JEFF data in IAEA range ({x_min}-{x_max}): {len(jeff_in_range)} mass numbers")
+                except Exception as e:
+                    print(f"\nWarning: Could not load JEFF-3.3 data: {e}")
+            
+            # Update layout with x-axis range based on IAEA data
             fig.update_layout(
+                title="Cumulative Fission Yield vs. Mass Number for U-235 (Thermal): IAEA LiveChart vs JEFF-3.3",
+                xaxis_title="Mass Number (A)",
+                yaxis_title="Cumulative Yield",
+                yaxis_type="log",
+                xaxis=dict(range=[x_min - 2, x_max + 2]),
                 font=dict(family="Arial, sans-serif", size=12),
                 title_font_size=16,
                 xaxis_title_font_size=14,
                 yaxis_title_font_size=14,
+                legend=dict(
+                    x=0.02,
+                    y=0.98,
+                    bgcolor="rgba(255,255,255,0.8)",
+                    bordercolor="black",
+                    borderwidth=1
+                ),
+                barmode="group",  # Group bars side by side
             )
             save_plot_as_pdf(fig, "u235_fission_yield.pdf")
         except ImportError:
             print("\nPlotly is not installed. Skipping plot generation. Install with: pip install plotly")
-        compare_with_reference_library(u235_fy_df)
     except NoDataFoundError:
         print("Could not retrieve fission yield data for U-235.")
     except Exception as e:
